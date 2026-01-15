@@ -1,0 +1,58 @@
+name: Code Quality - Linting
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'e-comers/**/*.{ts,tsx,js,jsx}'
+      - 'backend/**/*.{ts,js}'
+      - '.github/workflows/**'
+
+jobs:
+  lint-frontend:
+    name: Lint Frontend (Next.js)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: e-comers/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./e-comers
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./e-comers
+        run: npm run lint -- --max-warnings 0
+
+  lint-backend:
+    name: Lint Backend (TypeScript)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Type Check
+        working-directory: ./backend
+        run: npx tsc --noEmit

@@ -1,0 +1,56 @@
+name: Security Check - Dependency Audit
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  audit-frontend:
+    name: Security Audit (Frontend)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: e-comers/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./e-comers
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: ./e-comers
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+  audit-backend:
+    name: Security Audit (Backend)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: ./backend
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
